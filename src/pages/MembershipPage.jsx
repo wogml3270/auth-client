@@ -1,20 +1,47 @@
-// src/pages/MembershipPage.js
-import React from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const MembershipPage = () => {
   const { user } = useAuth();
 
+  console.log(user);
+
   return (
     <div>
-      <h1>Membership Information</h1>
+      <h1>맴버십 정보</h1>
       {user ? (
         <div>
-          <p>Current membership: {user.membership.name}</p>
-          {/* Logic to upgrade membership */}
+          <p>
+            유저 아이디: <span style={{ color: "blue" }}>{user?.userId}</span>
+          </p>
+          <p>
+            유저 이름: <span style={{ color: "blue" }}>{user?.username}</span>
+          </p>
+          <p>
+            맴버십 아이디:{" "}
+            <span style={{ color: "blue" }}>{user?.membership.id}</span>
+          </p>
+          <p>
+            가입한 맴버십 이름:{" "}
+            <span style={{ color: "red" }}>{user?.membership.name}</span>
+          </p>
+          <p>
+            이용 가능 혜택:{" "}
+            {user?.membership?.features.map((feature) => (
+              <span
+                key={feature}
+                style={{ color: "green", marginRight: "10px" }}
+              >
+                [{feature}]
+              </span>
+            ))}
+          </p>
         </div>
       ) : (
-        <p>You are not signed in.</p>
+        <div>
+          <p>로그인을 해주세요</p>
+          <Link to="sign-in" />
+        </div>
       )}
     </div>
   );

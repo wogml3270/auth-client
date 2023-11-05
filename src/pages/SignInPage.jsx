@@ -1,20 +1,24 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const SignInPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+
+  const { login, isLogin } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  if (isLogin()) {
+    return <Navigate to="/" replace />;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const success = await login(username, password);
     if (success) {
-      navigate("/"); // Redirect to home on success
+      navigate("/", { replace: true });
     }
-    // handle login failure
   };
 
   return (

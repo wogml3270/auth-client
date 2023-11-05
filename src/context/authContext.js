@@ -14,6 +14,7 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 5000,
 });
 
 export const AuthProvider = ({ children }) => {
@@ -38,10 +39,14 @@ export const AuthProvider = ({ children }) => {
 
       const { accessToken, refreshToken, user } = response.data.data;
       setUserAuthInfo({ accessToken, refreshToken, user });
-      return true; // 로그인 성공
+      return true;
     } catch (error) {
+      if (error.response && error.response.status === 401) {
+        alert("사용자 이름이나 비밀번호가 일치하지않습니다.");
+        return false;
+      }
       console.error("Login failed:", error);
-      return false; // 로그인 실패
+      return false;
     }
   };
 
@@ -51,32 +56,61 @@ export const AuthProvider = ({ children }) => {
     setAuthState({ accessToken: null, refreshToken: null, user: null });
   };
 
+  // 사용자 정보를 불러오는 함수
+  const getUserInfo = async () => {
+    try {
+      const response = await axiosInstance.get("/user/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      const userInfo = response.data.data;
+      setUserAuthInfo({
+        ...authState,
+        user: userInfo,
+      });
+    } catch (error) {
+      console.error("사용자 정보 불러오기 실패:", error);
+    }
+  };
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 사용자 정보를 불러오는 로직
+    if (authState.accessToken) {
+      getUserInfo();
+    }
+  }, [authState.accessToken]); // 액세스 토큰이 변경될 때 마다 사용자 정보를 새로 불러옴
+
   const refreshAccessToken = useCallback(async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
-      const response = await axiosInstance.post(
-        "/auth/refresh",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${refreshToken}`,
-          },
-        }
-      );
-      setUserAuthInfo({
-        accessToken: response.data.data.accessToken,
-        refreshToken: response.data.data.refreshToken,
-        user: response.data.data.userId,
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+      const response = await axiosInstance.post("/auth/refresh", {
+        refreshToken,
       });
-      return response.data.data.accessToken;
+
+      const { accessToken, newRefreshToken, user } = response.data.data;
+      setUserAuthInfo({
+        accessToken,
+        refreshToken: newRefreshToken, // 새로운 refreshToken 업데이트
+        user,
+      });
+      return accessToken;
     } catch (error) {
+      console.error("Could not refresh access token:", error);
       logout();
       return null;
     }
   }, []);
 
+  const isLogin = () => {
+    return authState.accessToken !== null;
+  };
+
   useEffect(() => {
-    // Auto-refresh token interceptor
+    // refresh token 자동 발급
     const requestInterceptor = axiosInstance.interceptors.request.use(
       (config) => {
         const token = authState.accessToken;
@@ -106,7 +140,6 @@ export const AuthProvider = ({ children }) => {
       }
     );
 
-    // Clean up interceptors
     return () => {
       axiosInstance.interceptors.request.eject(requestInterceptor);
       axiosInstance.interceptors.response.eject(responseInterceptor);
@@ -121,6 +154,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         refreshAccessToken,
+        isLogin,
+        getUserInfo,
       }}
     >
       {children}

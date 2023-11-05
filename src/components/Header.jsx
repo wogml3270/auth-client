@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const Header = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isLogin, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -15,13 +15,14 @@ const Header = () => {
     <header>
       <nav style={{ display: "flex", gap: "2rem" }}>
         <Link to="/">Home</Link>
-        {isAuthenticated !== undefined ? (
+        {isLogin() ? (
           <>
-            <Link to="/premium-content">Premium Content</Link>
-            <button onClick={handleLogout}>Logout</button>
+            <Link to="/membership">맴버십 정보</Link>
+            <Link to="/premium">프리미엄 컨텐츠</Link>
+            <button onClick={handleLogout}>로그아웃</button>
           </>
         ) : (
-          <Link to="/sign-in">Sign-in</Link>
+          <Link to="/sign-in">로그인</Link>
         )}
       </nav>
     </header>

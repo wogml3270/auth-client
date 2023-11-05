@@ -14,18 +14,17 @@ function App() {
       <Router>
         <Header />
         <Routes>
+          <Route path="/" element={<HomePage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/membership" element={<MembershipPage />} />
-          <Route path="/" element={<HomePage />} />
           <Route
-            path="/premium-content"
+            path="/premium"
             element={
-              <ProtectedRoute membershipRequired="프리미엄">
+              <ProtectedRoute>
                 <PremiumContentPage />
               </ProtectedRoute>
             }
           />
-          {/* 더 많은 라우트들... */}
         </Routes>
       </Router>
     </AuthProvider>
