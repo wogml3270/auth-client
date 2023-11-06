@@ -12,9 +12,8 @@ const SignInPage = () => {
     e.preventDefault();
     const success = await login(username, password);
     if (success) {
-      navigate("/"); // Redirect to home on success
+      navigate("/");
     }
-    // handle login failure
   };
 
   return (

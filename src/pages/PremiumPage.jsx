@@ -1,8 +1,8 @@
 import React from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
+import { Navigate, useLocation } from "react-router-dom";
 
-const ProtectedRoute = () => {
+const PremiumPage = () => {
   const { user } = useAuth();
   const location = useLocation();
 
@@ -10,10 +10,16 @@ const ProtectedRoute = () => {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  if (user.membership.name === "라이트") {
+  if (user && user.membership.name !== "프리미엄") {
     return <Navigate to="/membership" state={{ from: location }} replace />;
   }
-  return <Outlet />;
+
+  return (
+    <div>
+      <h1>프리미엄 컨텐츠</h1>
+      <p>아무튼 특별혜택</p>
+    </div>
+  );
 };
 
-export default ProtectedRoute;
+export default PremiumPage;

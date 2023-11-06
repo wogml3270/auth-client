@@ -1,10 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const MembershipPage = () => {
   const { user } = useAuth();
+  const location = useLocation();
 
-  console.log(user);
+  if (!user) {
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+  }
 
   return (
     <div>

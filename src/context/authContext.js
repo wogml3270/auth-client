@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
     // refresh token 자동 발급
     const requestInterceptor = axiosInstance.interceptors.request.use(
       (config) => {
-        const token = authState.accessToken;
+        const token = authState.refreshToken;
         if (token) {
           config.headers["Authorization"] = `Bearer ${token}`;
         }
@@ -121,6 +121,7 @@ export const AuthProvider = ({ children }) => {
       },
       (error) => Promise.reject(error)
     );
+    console.log(authState);
 
     const responseInterceptor = axiosInstance.interceptors.response.use(
       (response) => response,
